@@ -65,6 +65,18 @@ Namespace My
                 Me("FirstStart") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
+        Public Property cfgDirectory() As String
+            Get
+                Return CType(Me("cfgDirectory"),String)
+            End Get
+            Set
+                Me("cfgDirectory") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

@@ -69,12 +69,24 @@ Namespace My
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
          Global.System.Configuration.DefaultSettingValueAttribute("")>  _
-        Public Property cfgDirectory() As String
+        Public Property csgoDirectory() As String
             Get
-                Return CType(Me("cfgDirectory"),String)
+                Return CType(Me("csgoDirectory"),String)
             End Get
             Set
-                Me("cfgDirectory") = value
+                Me("csgoDirectory") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("")>  _
+        Public Property Username() As String
+            Get
+                Return CType(Me("Username"),String)
+            End Get
+            Set
+                Me("Username") = value
             End Set
         End Property
     End Class

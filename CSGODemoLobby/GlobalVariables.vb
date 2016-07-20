@@ -1,4 +1,5 @@
 ﻿Imports System.IO
+Imports System.Runtime.InteropServices
 Imports System.Runtime.Serialization.Formatters.Binary
 
 Module GlobalVariables
@@ -67,6 +68,17 @@ Module GlobalVariables
             Case "DemoTransmission"
                 MainForm.lblDemoDownload.Text = "The demo has been downlaoded."
                 File.WriteAllBytes(My.Settings.csgoDirectory & "\csgo\replays\csgodemolobby.dem", ObjectToByteArray(oUserData(0)))
+
+            Case "SpecInfo"
+                SendKeys.Send("spec_goto " & oUserData(0))
+                SendKeys.Send("{ENTER}")
+                MsgBox("kden")
         End Select
     End Sub
+
+    <DllImport("user32.dll")>
+    Public Function GetAsyncKeyState(ByVal vKey As System.Windows.Forms.Keys) As Short
+    End Function
+
+    Public Const KeyDown As Integer = &H8000
 End Module

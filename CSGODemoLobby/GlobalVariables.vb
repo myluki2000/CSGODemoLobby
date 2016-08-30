@@ -7,6 +7,7 @@ Module GlobalVariables
     Public WaitingForInvite As Boolean = False
     Public LobbyLeader As String
     Public DemoLocation As String
+    Public specPos As String
 
     Public Sub Sleep(time As Integer)
         While time > 0
@@ -65,14 +66,28 @@ Module GlobalVariables
 
                 UTClient.sendUTicket(sSenderID, "DemoTransmission", demoArray)
 
+                For Each lvItem As ListViewItem In MainForm.lvPlayers.Items
+                    If lvItem.Text = sSenderID Then
+                        lvItem.ImageIndex = 2
+                    End If
+                Next
+
             Case "DemoTransmission"
-                MainForm.lblDemoDownload.Text = "The demo has been downlaoded."
+                MainForm.lblDemoDownload.Text = "Downloading Demo"
                 File.WriteAllBytes(My.Settings.csgoDirectory & "\csgo\replays\csgodemolobby.dem", ObjectToByteArray(oUserData(0)))
+                MainForm.lblDemoDownload.Text = "The demo has been downloaded"
+                UTClient.sendUTicket(LobbyLeader, "DemoTransComplete")
+
+            Case "DemoTransComplete"
+                For Each lvItem As ListViewItem In MainForm.lvPlayers.Items
+                    If lvItem.Text = sSenderID Then
+                        lvItem.ImageIndex = 1
+                    End If
+                Next
 
             Case "SpecInfo"
                 SendKeys.Send("spec_goto " & oUserData(0))
                 SendKeys.Send("{ENTER}")
-                MsgBox("kden")
         End Select
     End Sub
 

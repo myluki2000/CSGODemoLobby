@@ -1,4 +1,6 @@
-﻿Imports System.IO
+﻿
+
+Imports System.IO
 Imports System.Runtime.InteropServices
 Imports System.Runtime.Serialization.Formatters.Binary
 
@@ -8,6 +10,27 @@ Module GlobalVariables
     Public LobbyLeader As String
     Public DemoLocation As String
     Public specPos As String
+
+    Private Sub UTClient_NoConnection() Handles UTClient.ConnectionNotPossible
+        MainForm.MainPanel.Visible = True
+        MainForm.MainPanel.Enabled = True
+
+        MainForm.LobbyPanel.Visible = False
+        MainForm.LobbyPanel.Enabled = False
+
+
+        MainForm.lblDemoDownload.Visible = True
+
+        MainForm.tbPlayerInvite.Visible = False
+        MainForm.tbPlayerInvite.Enabled = False
+        MainForm.btnPlayerInvite.Visible = False
+        MainForm.btnPlayerInvite.Enabled = False
+        MainForm.btnSelectDemo.Visible = False
+        MainForm.btnSelectDemo.Enabled = False
+
+        MetroMsgBox.label = "A connection with the main server could not be established!"
+        MetroMsgBox.ShowDialog()
+    End Sub
 
     Public Sub Sleep(time As Integer)
         While time > 0
@@ -35,6 +58,12 @@ Module GlobalVariables
         Select Case sCommand
             Case "JoinLobby"
                 If WaitingForInvite Then
+                    MainForm.lvPlayers.Items.Clear()
+                    For Each i In oUserData
+                        MainForm.lvPlayers.Items.Add(i)
+                    Next
+
+
                     Console.Beep()
                     WaitingForInvite = False
                     LobbyLeader = sSenderID
@@ -66,15 +95,21 @@ Module GlobalVariables
 
                 UTClient.sendUTicket(sSenderID, "DemoTransmission", demoArray)
 
+                demoArray = Nothing
+
                 For Each lvItem As ListViewItem In MainForm.lvPlayers.Items
                     If lvItem.Text = sSenderID Then
                         lvItem.ImageIndex = 2
                     End If
                 Next
 
+                Sleep(10)
+                sendPlayers()
+
             Case "DemoTransmission"
                 MainForm.lblDemoDownload.Text = "Downloading Demo"
                 File.WriteAllBytes(My.Settings.csgoDirectory & "\csgo\replays\csgodemolobby.dem", ObjectToByteArray(oUserData(0)))
+                oUserData = Nothing
                 MainForm.lblDemoDownload.Text = "The demo has been downloaded"
                 UTClient.sendUTicket(LobbyLeader, "DemoTransComplete")
 
@@ -85,10 +120,47 @@ Module GlobalVariables
                     End If
                 Next
 
-            Case "SpecInfo"
+                sendPlayers()
+
+            Case "ChatMsg"
+                MainForm.rtbChat.Text &= oUserData(0)
+
+            Case "LobbyPlayers"
+                MainForm.lvPlayers.Items.Clear()
+                For Each i In oUserData
+                    MainForm.lvPlayers.Items.Add(i)
+                Next
+
+            Case "SpecInfoPos"
                 SendKeys.Send("spec_goto " & oUserData(0))
                 SendKeys.Send("{ENTER}")
+
+            Case "SpecInfoTick"
+                SendKeys.Send("demo_pause")
+                SendKeys.Send("{ENTER}")
+                SendKeys.Send("demo_gototick " & oUserData(0))
+                SendKeys.Send("{ENTER}")
+
+            Case "SpecInfoPause"
+                SendKeys.Send("demo_pause")
+                SendKeys.Send("{ENTER}")
+
+            Case "SpecInfoResume"
+                SendKeys.Send("demo_resume")
+                SendKeys.Send("{ENTER}")
+
+
         End Select
+    End Sub
+
+    Public Sub sendPlayers()
+        Dim oUserData As New List(Of Object)
+        For Each lvItem As ListViewItem In MainForm.lvPlayers.Items
+            oUserData.Add(lvItem)
+        Next
+        For Each lvItem As ListViewItem In MainForm.lvPlayers.Items
+            UTClient.sendUTicket(lvItem.Text, "LobbyPlayers", oUserData)
+        Next
     End Sub
 
     <DllImport("user32.dll")>
